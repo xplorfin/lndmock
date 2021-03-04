@@ -7,7 +7,7 @@ require (
 	github.com/btcsuite/btcd v0.21.0-beta.0.20201208033208-6bd4c64a54fa
 	github.com/buger/jsonparser v1.1.1
 	github.com/docker/docker v20.10.5+incompatible
-	github.com/lightningnetwork/lnd v0.12.1-beta.rc6
+	github.com/lightningnetwork/lnd v0.11.1-beta.rc5
 	github.com/xplorfin/docker-utils v0.4.0
 )
 
