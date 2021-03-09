@@ -20,6 +20,7 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/brianvoe/gofakeit/v5 v5.11.2 h1:Ny5Nsf4z2023ZvYP8ujW8p5B1t5sxhdFaQ/0IYXbeSA=
 github.com/brianvoe/gofakeit/v5 v5.11.2/go.mod h1:/ZENnKqX+XrN8SORLe/fu5lZDIo1tuPncWuRD+eyhSI=
+github.com/brianvoe/gofakeit/v6 v6.2.2/go.mod h1:palrJUk4Fyw38zIFB/uBZqsgzW5VsNllhHKKwAebzew=
 github.com/btcsuite/btcd v0.0.0-20190629003639-c26ffa870fd8/go.mod h1:3J08xEfcugPacsc34/LKRU2yO7YmuT8yt28J8k2+rrI=
 github.com/btcsuite/btcd v0.0.0-20190824003749-130ea5bddde3/go.mod h1:3J08xEfcugPacsc34/LKRU2yO7YmuT8yt28J8k2+rrI=
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
