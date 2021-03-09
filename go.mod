@@ -8,7 +8,7 @@ require (
 	github.com/buger/jsonparser v1.1.1
 	github.com/docker/docker v20.10.5+incompatible
 	github.com/lightningnetwork/lnd v0.11.1-beta.rc5
-	github.com/xplorfin/docker-utils v0.4.0
+	github.com/xplorfin/docker-utils v0.5.0
 )
 
 replace github.com/btcsuite/btcd v0.21.0-beta => github.com/xplorfin/btcd v0.21.0-hotfix
