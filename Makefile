@@ -1,22 +1,14 @@
-# Constants
-GHCR_URL=ghcr.io/xplorfin
-
-# variables related to your microservice
-# change SERVICE_NAME to whatever you're naming your microservice
-SERVICE_NAME=lndmock
-# name of output binary
-BINARY_NAME=updater
-
 # latest git commit hash
 LATEST_COMMIT_HASH=$(shell git rev-parse HEAD)
 
 # go commands and variables
 GO=go
-GOB=$(GO) build
-GOT=$(GO) test
 GOM=$(GO) mod
 
-# environment variables related to 
+# git commands
+GIT=git
+
+# environment variables related to
 # cross-compilation.
 GOOS_MACOS=darwin
 GOOS_LINUX=linux
@@ -36,37 +28,64 @@ RESET_COLOR=\033[0m
 
 COLORECHO = $(1)$(2)$(RESET_COLOR)
 
-macos: check-version gomvendor build-macos
+default: help
 
-linux: check-version gomvendor build-linux
+setup-hooks: ## setup the repository (enables git hooks)
+	git config core.hooksPath .github/hooks --replace-all
 
-# Makes sure you're running a version of go which supports
-# go modules. 
-check-version:
-ifeq ($(shell [[ $(MINORVER) -lt 11 ]] && BADVER=yes || BADVER=no; echo $$BADVER), yes)
-	@echo "Installed go version ($(GOVERSION)) is lower than 1.11."
-	@echo "Go >= 1.11 is required for use with Go modules." 
-	@echo "Please update your go version." 
-	exit 5
-else
-ifeq ($(shell [[ $(MINORVER) -lt 14 ]] && LOWVER=yes || LOWVER=no; echo $$LOWVER), yes)
-	@echo "Installed go version ($(GOVERSION)) is lower than 1.14."
-	@echo "Things will still work, but you should definitely update your installed Go version."
-endif
-endif
+bench:  ## Run all benchmarks in the Go application
+	@go test -bench=. -benchmem
 
-test:
-	$(GOT) ./...
+clean-mods: ## Remove all the Go mod cache
+	@go clean -modcache
 
-gomvendor:
-	$(GOM) tidy
-	$(GOM) vendor
+coverage: ## Get the test coverage from go-coverage
+	@go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out
 
-build-macos:
-	env GOOS=$(GOOS_MACOS) GOARCH=$(GOARCH) \
-	$(GOB) -mod vendor -o $(BINARY_NAME)
+godocs: ## Run a godoc server
+	@echo "godoc server running on http://localhost:9000"
+	@godoc -http=":9000"
 
-build-linux:
-	env GOOS=$(GOOS_LINUX) GOARCH=$(GOARCH) \
-	$(GOB) -mod vendor -o $(BINARY_NAME)
- 
+
+golangci-install:
+	@#Travis (has sudo)
+	@if [ "$(shell which golangci-lint)" = "" ] && [ $(TRAVIS) ]; then curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s && sudo cp ./bin/golangci-lint $(go env GOPATH)/bin/; fi;
+	@#AWS CodePipeline
+	@if [ "$(shell which golangci-lint)" = "" ] && [ "$(CODEBUILD_BUILD_ID)" != "" ]; then curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin; fi;
+	@#Github Actions
+	@if [ "$(shell which golangci-lint)" = "" ] && [ "$(GITHUB_WORKFLOW)" != "" ]; then curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s && sudo cp ./bin/golangci-lint $(go env GOPATH)/bin/; fi;
+	@#Brew - MacOS
+	@if [ "$(shell which golangci-lint)" = "" ] && [ "$(shell which brew)" != "" ]; then brew install golangci-lint; fi;
+
+go-acc-install:
+	@if [ "$(shell which "go-acc")" = "" ]; then go get -u github.com/ory/go-acc; fi;
+
+ci-lint: golangci-install ## Run the golangci-lint application (install if not found) & fix issues if possible
+	@golangci-lint run
+
+lint: golangci-install ## Run the golangci-lint application (install if not found) & fix issues if possible
+	@golangci-lint run --fix
+
+# pre-commit hook
+pre-commit: lint
+
+test: ## run tests without coverage reporting
+	@go test ./...
+
+ci-test: go-acc-install # run a test with coverage
+	@go-acc -o profile.cov ./...
+
+gomvendor: ## run tidy & vendor
+	@go mod tidy
+	@go mod vendor
+
+help: ## This help dialog.
+	@IFS=$$'\n' ; \
+	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//'`); \
+	for help_line in $${help_lines[@]}; do \
+		IFS=$$'#' ; \
+		help_split=($$help_line) ; \
+		help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
+		help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
+		printf "%-30s %s\n" $$help_command $$help_info ; \
+	done
