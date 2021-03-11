@@ -4,7 +4,6 @@ go 1.14
 
 require (
 	github.com/brianvoe/gofakeit/v5 v5.11.2
-	github.com/brianvoe/gofakeit/v6 v6.2.2
 	github.com/btcsuite/btcd v0.21.0-beta
 	github.com/buger/jsonparser v1.1.1
 	github.com/docker/docker v20.10.5+incompatible
