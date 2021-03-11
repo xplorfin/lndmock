@@ -264,8 +264,8 @@ github.com/urfave/cli v1.18.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijb
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xplorfin/btcd v0.21.0-hotfix h1:zaab2dksut4t4J9jEMIOjSilMIhSuYVRUitLUYiceOM=
 github.com/xplorfin/btcd v0.21.0-hotfix/go.mod h1:Sv4JPQ3/M+teHz9Bo5jBpkNcP0x6r7rdihlNL/7tTAs=
-github.com/xplorfin/docker-utils v0.5.0 h1:DK3iSE9c3swWfgplZaZwTwjLi0jvSKTGtvTXOxTxeq4=
-github.com/xplorfin/docker-utils v0.5.0/go.mod h1:HYQRk0GIav9DK7NWY/YLqHjgeCfoJ74eJCSGK5blI54=
+github.com/xplorfin/docker-utils v0.6.0 h1:1Q/w5B4b1PptYDqoNXXcQ1RrWeuhZNLnd0EyN/zBlQ0=
+github.com/xplorfin/docker-utils v0.6.0/go.mod h1:HYQRk0GIav9DK7NWY/YLqHjgeCfoJ74eJCSGK5blI54=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
