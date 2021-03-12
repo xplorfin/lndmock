@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -31,16 +32,30 @@ func TestLightningMocker(t *testing.T) {
 		t.Error(err)
 	}
 
+	alicePubKey, err := aliceContainer.GetPubKey()
+	if err != nil {
+		t.Error(err)
+	}
+
 	err = btcdContainer.MineToAddress(aliceAddress, 500)
 	if err != nil {
 		t.Error(err)
 	}
 
 	// start bob's lnd instance
-	bobId, err := mocker.CreateLndContainer("bob")
+	bobContainer, err := mocker.CreateLndContainer("bob")
 	if err != nil {
 		t.Error(err)
 	}
 
-	_ = bobId
+	bobPubKey, err := bobContainer.GetPubKey()
+	if err != nil {
+		t.Error(err)
+	}
+
+	_ = alicePubKey
+	_ = bobPubKey
+
+	fmt.Print("")
+	_ = bobContainer
 }

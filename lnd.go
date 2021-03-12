@@ -31,7 +31,7 @@ func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err 
 				Type:   mount.TypeVolume,
 			},
 			{
-				Source: "lnd",
+				Source: fmt.Sprintf("%s-lnd", name),
 				Target: "/root/.lnd",
 				Type:   mount.TypeVolume,
 			},
@@ -62,7 +62,7 @@ type LndContainer struct {
 }
 
 // get the hostname of the container
-func (l LndContainer) Hostname() (hostname string, err error) {
+func (l *LndContainer) Hostname() (hostname string, err error) {
 	// get alices hostname
 	hostnameResult, err := l.c.Exec(l.id, HostnameCmd)
 	if err != nil {
@@ -72,7 +72,7 @@ func (l LndContainer) Hostname() (hostname string, err error) {
 }
 
 // Address gets the address of the user
-func (l LndContainer) Address() (address string, err error) {
+func (l *LndContainer) Address() (address string, err error) {
 	hostname, err := l.Hostname()
 	if err != nil {
 		return "", err
@@ -85,7 +85,7 @@ func (l LndContainer) Address() (address string, err error) {
 		if counter > 100 {
 			return address, err
 		}
-		rawAddress, err := l.c.Exec(l.id, []string{"lncli", fmt.Sprintf("--rpcserver=%s:10009", strings.ReplaceAll(hostname, "\n", "")), "--network=simnet", "newaddress", "np2wkh"})
+		rawAddress, err := l.c.Exec(l.id, []string{"lncli", fmt.Sprintf("--rpcserver=%s:10009", strings.ReplaceAll(hostname, "\n", "")), NetworkCmd, "newaddress", "np2wkh"})
 		if err != nil {
 			return "", err
 		}
@@ -95,4 +95,25 @@ func (l LndContainer) Address() (address string, err error) {
 		}
 	}
 	return address, err
+}
+
+// GetPubKey of instance
+func (l *LndContainer) GetPubKey() (pubKey string, err error) {
+	// wait for start, TODO make this more efficient
+	l.Address()
+
+	hostname, err := l.Hostname()
+	if err != nil {
+		return "", err
+	}
+
+	info, err := l.c.Exec(l.id, []string{"lncli", fmt.Sprintf("--rpcserver=%s:10009", strings.ReplaceAll(hostname, "\n", "")), NetworkCmd, "getinfo"})
+	if err != nil {
+		return pubKey, err
+	}
+	pubKey, err = jsonparser.GetString([]byte(info.StdOut), "identity_pubkey")
+	if err != nil {
+		return pubKey, err
+	}
+	return pubKey, err
 }

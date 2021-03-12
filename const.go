@@ -1,6 +1,7 @@
 package mock
 
 const MiningAddressName = "MINING_ADDRESS"
+const NetworkCmd = "--network=simnet"
 
 var EnvArgs = []string{
 	"RPCUSER",
