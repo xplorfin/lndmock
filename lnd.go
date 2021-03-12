@@ -20,7 +20,7 @@ func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err 
 		Tty:        false,
 		Entrypoint: []string{"./start-lnd.sh"},
 		Labels: map[string]string{
-			"sessionId": c.SessionId,
+			"sessionId": c.SessionID,
 		},
 	}, &container.HostConfig{
 		Links: []string{"btcd:blockchain"},
