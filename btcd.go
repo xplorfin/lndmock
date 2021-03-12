@@ -2,13 +2,16 @@ package mock
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 )
 
-func (c LightningMocker) CreateBtcdContainer() (id string, err error) {
+// Create a new btcd container
+func (c LightningMocker) CreateBtcdContainer() (ctn BtcdContainer, err error) {
+	ctn.c = &c
 	newEnvArgs := append(EnvArgs, MiningAddressName)
 	created, err := c.CreateContainer(&container.Config{
 		Image:      "ghcr.io/xplorfin/btcd:latest",
@@ -31,34 +34,55 @@ func (c LightningMocker) CreateBtcdContainer() (id string, err error) {
 	}, nil, nil, "btcd")
 
 	if err != nil {
-		return id, err
+		return ctn, err
 	}
 
+	ctn.id = created.ID
 	err = c.ContainerStart(c.Ctx, created.ID, types.ContainerStartOptions{})
 	if err != nil {
-		return id, err
+		return ctn, err
 	}
 
 	c.PrintContainerLogs(created.ID)
 
-	return created.ID, nil
+	return ctn, nil
 }
 
-// recreate the btcd  container with the correct mining address
-// TODO reduce redundant code here
-func (c LightningMocker) RecreateBtcdContainerMining(containerId string, miningAddress string) (id string, err error) {
+// btcd container object
+type BtcdContainer struct {
+	// id of the current docker container
+	id string
+	// the lightning mocker object
+	c *LightningMocker
+}
+
+// mine a given number of block rewards to an address
+func (b *BtcdContainer) MineToAddress(address string, blocks int) (err error) {
+	b.id, err = b.recreateWithMiningAddress(b.id, address)
+	if err != nil {
+		return err
+	}
+	// generate n-blocks
+	_, err = b.c.Exec(b.id, []string{"/start-btcctl.sh", "generate", strconv.Itoa(blocks)})
+
+	return err
+}
+
+// recreate the btcd  container with a mining address (any subsequent blocks rewards will
+// go to this address)
+func (b *BtcdContainer) recreateWithMiningAddress(containerId string, miningAddress string) (id string, err error) {
 	// remove the old container
-	err = c.StopContainer(containerId)
+	err = b.c.StopContainer(containerId)
 	if err != nil {
 		return containerId, err
 	}
-	err = c.ContainerRemove(c.Ctx, containerId, types.ContainerRemoveOptions{})
+	err = b.c.ContainerRemove(b.c.Ctx, containerId, types.ContainerRemoveOptions{})
 	if err != nil {
 		return containerId, err
 	}
 
 	newEnvArgs := append(EnvArgs, fmt.Sprintf("%s=%s", MiningAddressName, miningAddress))
-	created, err := c.CreateContainer(&container.Config{
+	created, err := b.c.CreateContainer(&container.Config{
 		Image:      "ghcr.io/xplorfin/btcd:latest",
 		Env:        newEnvArgs,
 		Tty:        false,
@@ -82,12 +106,12 @@ func (c LightningMocker) RecreateBtcdContainerMining(containerId string, miningA
 		return id, err
 	}
 
-	err = c.ContainerStart(c.Ctx, created.ID, types.ContainerStartOptions{})
+	err = b.c.ContainerStart(b.c.Ctx, created.ID, types.ContainerStartOptions{})
 	if err != nil {
 		return id, err
 	}
 
-	c.PrintContainerLogs(created.ID)
+	b.c.PrintContainerLogs(created.ID)
 
 	return created.ID, nil
 }
