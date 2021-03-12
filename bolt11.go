@@ -16,7 +16,7 @@ import (
 
 var params = chaincfg.MainNetParams
 
-// create a mock lnd invoice on mainnet
+// MockLndInvoiceMain creates a mock lnd invoice on mainnet
 func MockLndInvoiceMain(t *testing.T) (encoded string, decoded *zpay32.Invoice) {
 	// amounts from https://git.io/JttyN
 	var (

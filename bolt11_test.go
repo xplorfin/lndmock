@@ -6,6 +6,7 @@ import (
 	"github.com/lightningnetwork/lnd/zpay32"
 )
 
+// Make sure we can create and decode an lnd invoice
 func TestMockLndInvoice(t *testing.T) {
 	mockEncodedInvoice, _ := MockLndInvoiceMain(t)
 	_, err := zpay32.Decode(mockEncodedInvoice, &params)

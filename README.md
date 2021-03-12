@@ -12,3 +12,9 @@ This is a helper library by [entropy](http://entropy.rocks/) that hopes to imita
 ## Note:
 
 This library was open sourced as a dependency for another project. While this is functional, documentation may be lacking for a bit.
+
+## Helpful tips:
+
+This command will remove *all* containers on your computer (including containers not created by lndmock): 
+
+`docker stop $(docker ps -a -q) && docker rm -v $(docker ps -a -q)`
