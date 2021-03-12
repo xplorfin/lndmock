@@ -59,42 +59,51 @@ type LndContainer struct {
 	id string
 	// the lightning mocker object
 	c *LightningMocker
+	// hostname of lnd container
+	hostname string
+	// address of lnd wallet
+	address string
 }
 
 // get the hostname of the container
 func (l *LndContainer) Hostname() (hostname string, err error) {
-	// get alices hostname
-	hostnameResult, err := l.c.Exec(l.id, HostnameCmd)
-	if err != nil {
-		return "", err
+	if l.hostname == "" {
+		// get alices hostname
+		hostnameResult, err := l.c.Exec(l.id, HostnameCmd)
+		if err != nil {
+			return "", err
+		}
+		l.hostname = hostnameResult.StdOut
 	}
-	return hostnameResult.StdOut, err
+	return l.hostname, err
 }
 
 // Address gets the address of the user
 func (l *LndContainer) Address() (address string, err error) {
-	hostname, err := l.Hostname()
-	if err != nil {
-		return "", err
-	}
-	// because we don't know when the lnd server will start, we need to keep trying until we get an address
-	hasAddress := false
-	counter := 0
-	for !hasAddress {
-		counter += 1
-		if counter > 100 {
-			return address, err
-		}
-		rawAddress, err := l.c.Exec(l.id, []string{"lncli", fmt.Sprintf("--rpcserver=%s:10009", strings.ReplaceAll(hostname, "\n", "")), NetworkCmd, "newaddress", "np2wkh"})
+	if l.address == "" {
+		hostname, err := l.Hostname()
 		if err != nil {
 			return "", err
 		}
-		hasAddress = rawAddress.ExitCode == 0
-		if hasAddress {
-			address, _ = jsonparser.GetString([]byte(rawAddress.StdOut), "address")
+		// because we don't know when the lnd server will start, we need to keep trying until we get an address
+		hasAddress := false
+		counter := 0
+		for !hasAddress {
+			counter += 1
+			if counter > 100 {
+				return l.address, err
+			}
+			rawAddress, err := l.c.Exec(l.id, []string{"lncli", fmt.Sprintf("--rpcserver=%s:10009", strings.ReplaceAll(hostname, "\n", "")), NetworkCmd, "newaddress", "np2wkh"})
+			if err != nil {
+				return "", err
+			}
+			hasAddress = rawAddress.ExitCode == 0
+			if hasAddress {
+				l.address, _ = jsonparser.GetString([]byte(rawAddress.StdOut), "address")
+			}
 		}
 	}
-	return address, err
+	return l.address, err
 }
 
 // GetPubKey of instance
@@ -116,4 +125,20 @@ func (l *LndContainer) GetPubKey() (pubKey string, err error) {
 		return pubKey, err
 	}
 	return pubKey, err
+}
+
+// broadcast a channel opening transaction
+// note: blocks must be mined for channel to be established
+func (l *LndContainer) OpenChannel(pubKey string, amount int) error {
+	// wait for start, TODO make this more efficient
+	l.Address()
+
+	hostname, err := l.Hostname()
+	if err != nil {
+		return err
+	}
+
+	_, err = l.c.Exec(l.id, []string{"lncli", fmt.Sprintf("--rpcserver=%s:10009", strings.ReplaceAll(hostname, "\n", "")), NetworkCmd,
+		"openchannel", fmt.Sprintf("--node_key=%s", pubKey), fmt.Sprintf("--local_amt=%d", amount)})
+	return err
 }

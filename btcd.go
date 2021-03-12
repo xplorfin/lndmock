@@ -105,6 +105,7 @@ func (b *BtcdContainer) recreateWithMiningAddress(containerId string, miningAddr
 	if err != nil {
 		return id, err
 	}
+	b.id = created.ID
 
 	err = b.c.ContainerStart(b.c.Ctx, created.ID, types.ContainerStartOptions{})
 	if err != nil {

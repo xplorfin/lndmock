@@ -1,7 +1,6 @@
 package mock
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -48,14 +47,38 @@ func TestLightningMocker(t *testing.T) {
 		t.Error(err)
 	}
 
+	// give bob btc
+	bobAddress, err := bobContainer.Address()
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = btcdContainer.MineToAddress(bobAddress, 500)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// open alice->bob channel
+	err = bobContainer.OpenChannel(alicePubKey, 100000)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// get bob pub key
 	bobPubKey, err := bobContainer.GetPubKey()
 	if err != nil {
 		t.Error(err)
 	}
 
-	_ = alicePubKey
-	_ = bobPubKey
+	// open bob->alice container
+	err = aliceContainer.OpenChannel(bobPubKey, 100000)
+	if err != nil {
+		t.Error(err)
+	}
 
-	fmt.Print("")
-	_ = bobContainer
+	// broadcast channel opening transactions
+	err = btcdContainer.MineToAddress(bobAddress, 3)
+	if err != nil {
+		t.Error(err)
+	}
 }
