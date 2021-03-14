@@ -8,7 +8,7 @@ require (
 	github.com/buger/jsonparser v1.1.1
 	github.com/docker/docker v20.10.5+incompatible
 	github.com/lightningnetwork/lnd v0.11.1-beta.rc5
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.7.0
 	github.com/xplorfin/docker-utils v0.9.0
 )
 
