@@ -9,7 +9,9 @@ import (
 	"github.com/docker/docker/api/types/mount"
 )
 
-// Create a new btcd container
+// CreateBtcdContainer creates a BtcdContainer and starts it so it can
+// respond to rpc requests. Mining must be done manually and a mining address
+// should be set using BtcdContainer.MineToAddress.
 func (c LightningMocker) CreateBtcdContainer() (ctn BtcdContainer, err error) {
 	ctn.c = &c
 	newEnvArgs := append(EnvArgs, MiningAddressName)
@@ -48,15 +50,16 @@ func (c LightningMocker) CreateBtcdContainer() (ctn BtcdContainer, err error) {
 	return ctn, nil
 }
 
-// btcd container object
+// BtcdContainer object contains methods that allow us to interact with a created
+// btcd container
 type BtcdContainer struct {
 	// id of the current docker container
 	id string
-	// the lightning mocker object
+	// c reference to the lightning mocker object
 	c *LightningMocker
 }
 
-// mine a given number of block rewards to an address
+// MineToAddress mines a given number of block rewards to an address
 func (b *BtcdContainer) MineToAddress(address string, blocks int) (err error) {
 	b.id, err = b.recreateWithMiningAddress(b.id, address)
 	if err != nil {
@@ -68,17 +71,17 @@ func (b *BtcdContainer) MineToAddress(address string, blocks int) (err error) {
 	return err
 }
 
-// recreate the btcd  container with a mining address (any subsequent blocks rewards will
-// go to this address)
-func (b *BtcdContainer) recreateWithMiningAddress(containerId string, miningAddress string) (id string, err error) {
+// recreateWithMiningAddress recreates the btcd  container with a mining address
+// (any subsequent blocks rewards will go to this address)
+func (b *BtcdContainer) recreateWithMiningAddress(containerID string, miningAddress string) (id string, err error) {
 	// remove the old container
-	err = b.c.StopContainer(containerId)
+	err = b.c.StopContainer(containerID)
 	if err != nil {
-		return containerId, err
+		return containerID, err
 	}
-	err = b.c.ContainerRemove(b.c.Ctx, containerId, types.ContainerRemoveOptions{})
+	err = b.c.ContainerRemove(b.c.Ctx, containerID, types.ContainerRemoveOptions{})
 	if err != nil {
-		return containerId, err
+		return containerID, err
 	}
 
 	newEnvArgs := append(EnvArgs, fmt.Sprintf("%s=%s", MiningAddressName, miningAddress))

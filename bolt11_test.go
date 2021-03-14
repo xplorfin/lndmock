@@ -8,7 +8,7 @@ import (
 
 // Make sure we can create and decode an lnd invoice
 func TestMockLndInvoice(t *testing.T) {
-	mockEncodedInvoice, _ := MockLndInvoiceMain(t)
+	mockEncodedInvoice, _ := MockLndInvoiceMainnet(t)
 	_, err := zpay32.Decode(mockEncodedInvoice, &params)
 	if err != nil {
 		t.Error(err)

@@ -2,12 +2,16 @@ package mock
 
 import (
 	"testing"
+
+	. "github.com/stretchr/testify/assert"
 )
 
 // run through this https://git.io/JqcC4 workflow
 func TestLightningMocker(t *testing.T) {
 	mocker := NewLightningMocker()
-	defer mocker.Teardown()
+	defer func() {
+		Nil(t, mocker.Teardown())
+	}()
 	err := mocker.CreateVolumes()
 	if err != nil {
 		t.Error(err)

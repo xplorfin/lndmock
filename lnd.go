@@ -54,6 +54,8 @@ func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err 
 	return ctn, nil
 }
 
+// LndContainer object contains methods that allow us to interact with a created
+// lnd container
 type LndContainer struct {
 	// id of the current docker container
 	id string
@@ -65,7 +67,7 @@ type LndContainer struct {
 	address string
 }
 
-// get the hostname of the container
+// Hostname gets the hostnamme of a container
 func (l *LndContainer) Hostname() (hostname string, err error) {
 	if l.hostname == "" {
 		// get alices hostname
@@ -89,7 +91,7 @@ func (l *LndContainer) Address() (address string, err error) {
 		hasAddress := false
 		counter := 0
 		for !hasAddress {
-			counter += 1
+			counter++
 			if counter > 100 {
 				return l.address, err
 			}
@@ -109,7 +111,7 @@ func (l *LndContainer) Address() (address string, err error) {
 // GetPubKey of instance
 func (l *LndContainer) GetPubKey() (pubKey string, err error) {
 	// wait for start, TODO make this more efficient
-	l.Address()
+	//l.Address()
 
 	hostname, err := l.Hostname()
 	if err != nil {
@@ -127,11 +129,11 @@ func (l *LndContainer) GetPubKey() (pubKey string, err error) {
 	return pubKey, err
 }
 
-// broadcast a channel opening transaction
-// note: blocks must be mined for channel to be established
+// OpenChannel broadcasts a channel opening transaction to the mempool
+// Blocks must be mined for channel to be established
 func (l *LndContainer) OpenChannel(pubKey string, amount int) error {
 	// wait for start, TODO make this more efficient
-	l.Address()
+	//l.Address()
 
 	hostname, err := l.Hostname()
 	if err != nil {
