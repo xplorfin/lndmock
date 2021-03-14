@@ -2,7 +2,7 @@ package mock
 
 import "github.com/xplorfin/docker-utils"
 
-// lnd mocker object
+// LightningMocker defines the lnd mocker object
 type LightningMocker struct {
 	docker.Client
 }
