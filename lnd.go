@@ -2,7 +2,6 @@ package mock
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/buger/jsonparser"
 	"github.com/docker/docker/api/types"
@@ -19,11 +18,10 @@ func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err 
 		Env:        EnvArgs,
 		Tty:        false,
 		Entrypoint: []string{"./start-lnd.sh"},
-		Labels: map[string]string{
-			"sessionId": c.SessionID,
-		},
+		Labels:     c.GetSessionLabels(),
 	}, &container.HostConfig{
-		Links: []string{"btcd:blockchain"},
+		//Links: []string{"btcd:blockchain"},
+		NetworkMode: NetworkName,
 		Mounts: []mount.Mount{
 			{
 				Source: "shared",
@@ -83,10 +81,6 @@ func (l *LndContainer) Hostname() (hostname string, err error) {
 // Address gets the address of the user
 func (l *LndContainer) Address() (address string, err error) {
 	if l.address == "" {
-		hostname, err := l.Hostname()
-		if err != nil {
-			return "", err
-		}
 		// because we don't know when the lnd server will start, we need to keep trying until we get an address
 		hasAddress := false
 		counter := 0
@@ -95,7 +89,8 @@ func (l *LndContainer) Address() (address string, err error) {
 			if counter > 100 {
 				return l.address, err
 			}
-			rawAddress, err := l.c.Exec(l.id, []string{"lncli", fmt.Sprintf("--rpcserver=%s:10009", strings.ReplaceAll(hostname, "\n", "")), NetworkCmd, "newaddress", "np2wkh"})
+			// TODO we might be able to replace the hostname here with the container command
+			rawAddress, err := l.c.Exec(l.id, []string{"lncli", "--rpcserver=localhost:10009", NetworkCmd, "newaddress", "np2wkh"})
 			if err != nil {
 				return "", err
 			}
@@ -110,15 +105,7 @@ func (l *LndContainer) Address() (address string, err error) {
 
 // GetPubKey of instance
 func (l *LndContainer) GetPubKey() (pubKey string, err error) {
-	// wait for start, TODO make this more efficient
-	//l.Address()
-
-	hostname, err := l.Hostname()
-	if err != nil {
-		return "", err
-	}
-
-	info, err := l.c.Exec(l.id, []string{"lncli", fmt.Sprintf("--rpcserver=%s:10009", strings.ReplaceAll(hostname, "\n", "")), NetworkCmd, "getinfo"})
+	info, err := l.c.Exec(l.id, []string{"lncli", "--rpcserver=localhost:10009", NetworkCmd, "getinfo"})
 	if err != nil {
 		return pubKey, err
 	}
@@ -129,18 +116,30 @@ func (l *LndContainer) GetPubKey() (pubKey string, err error) {
 	return pubKey, err
 }
 
-// OpenChannel broadcasts a channel opening transaction to the mempool
-// Blocks must be mined for channel to be established
-func (l *LndContainer) OpenChannel(pubKey string, amount int) error {
-	// wait for start, TODO make this more efficient
-	//l.Address()
-
-	hostname, err := l.Hostname()
+// Connect connects to the lightning peer
+func (l *LndContainer) Connect(pubKey, host string) (err error) {
+	// we use address to make sure the wallet is unlocked
+	// TODO: clean this up
+	_, err = l.Address()
 	if err != nil {
 		return err
 	}
 
-	_, err = l.c.Exec(l.id, []string{"lncli", fmt.Sprintf("--rpcserver=%s:10009", strings.ReplaceAll(hostname, "\n", "")), NetworkCmd,
+	_, err = l.c.Exec(l.id, []string{"lncli", "--rpcserver=localhost:10009", NetworkCmd,
+		"connect", fmt.Sprintf("%s@%s", pubKey, host)})
+	return err
+}
+
+// OpenChannel connects to the peer and broadcasts a channel
+// opening transaction to the mempool.
+// Note: blocks must be mined for channel to be established
+func (l *LndContainer) OpenChannel(pubKey, host string, amount int) (err error) {
+	err = l.Connect(pubKey, host)
+	if err != nil {
+		return err
+	}
+	// open the channel
+	_, err = l.c.Exec(l.id, []string{"lncli", "--rpcserver=localhost:10009", NetworkCmd,
 		"openchannel", fmt.Sprintf("--node_key=%s", pubKey), fmt.Sprintf("--local_amt=%d", amount)})
 	return err
 }

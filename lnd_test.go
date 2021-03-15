@@ -12,7 +12,7 @@ func TestLightningMocker(t *testing.T) {
 	defer func() {
 		Nil(t, mocker.Teardown())
 	}()
-	err := mocker.CreateVolumes()
+	err := mocker.Initialize()
 	if err != nil {
 		t.Error(err)
 	}
@@ -64,23 +64,24 @@ func TestLightningMocker(t *testing.T) {
 
 	// remove until we can fix container link
 	_ = alicePubKey
-	//// open alice->bob channel
-	//err = bobContainer.OpenChannel(alicePubKey, 100000)
-	//if err != nil {
-	//	t.Error(err)
-	//}
-	//
-	//// get bob pub key
-	//bobPubKey, err := bobContainer.GetPubKey()
-	//if err != nil {
-	//	t.Error(err)
-	//}
-	//
-	//// open bob->alice container
-	//err = aliceContainer.OpenChannel(bobPubKey, 100000)
-	//if err != nil {
-	//	t.Error(err)
-	//}
+	// open alice->bob channel
+	// error is currently cannot link toa  non-running container /btcd ad /bob/blockchain
+	err = bobContainer.OpenChannel(alicePubKey, "alice", 100000)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// get bob pub key
+	bobPubKey, err := bobContainer.GetPubKey()
+	if err != nil {
+		t.Error(err)
+	}
+
+	// open bob->alice container
+	err = aliceContainer.OpenChannel(bobPubKey, "bob", 100000)
+	if err != nil {
+		t.Error(err)
+	}
 
 	// broadcast channel opening transactions
 	err = btcdContainer.MineToAddress(bobAddress, 3)
