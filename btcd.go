@@ -20,7 +20,9 @@ func (c LightningMocker) CreateBtcdContainer() (ctn BtcdContainer, err error) {
 		Env:        newEnvArgs,
 		Tty:        false,
 		Entrypoint: []string{"./start-btcd.sh"},
+		Labels:     c.GetSessionLabels(),
 	}, &container.HostConfig{
+		NetworkMode: NetworkName,
 		Mounts: []mount.Mount{
 			{
 				Source: "shared",
@@ -33,7 +35,7 @@ func (c LightningMocker) CreateBtcdContainer() (ctn BtcdContainer, err error) {
 				Type:   mount.TypeVolume,
 			},
 		},
-	}, nil, nil, "btcd")
+	}, nil, nil, "blockchain")
 
 	if err != nil {
 		return ctn, err
@@ -90,7 +92,9 @@ func (b *BtcdContainer) recreateWithMiningAddress(containerID string, miningAddr
 		Env:        newEnvArgs,
 		Tty:        false,
 		Entrypoint: []string{"./start-btcd.sh"},
+		Labels:     b.c.GetSessionLabels(),
 	}, &container.HostConfig{
+		NetworkMode: NetworkName,
 		Mounts: []mount.Mount{
 			{
 				Source: "shared",
@@ -103,7 +107,7 @@ func (b *BtcdContainer) recreateWithMiningAddress(containerID string, miningAddr
 				Type:   mount.TypeVolume,
 			},
 		},
-	}, nil, nil, "btcd")
+	}, nil, nil, "blockchain")
 
 	if err != nil {
 		return id, err

@@ -17,4 +17,4 @@ This library was open sourced as a dependency for another project. While this is
 
 This command will remove *all* containers on your computer (including containers not created by lndmock): 
 
-`docker stop $(docker ps -a -q) && docker rm -v $(docker ps -a -q)`
+`docker stop $(docker ps -a -q) || true && docker rm -v $(docker ps -a -q) || true && docker network rm lightning-network`

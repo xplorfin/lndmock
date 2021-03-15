@@ -1,5 +1,10 @@
 package mock
 
+import "github.com/docker/docker/api/types/container"
+
+// NetworkName is the name of the network we use in docker
+const NetworkName container.NetworkMode = "lightning-network"
+
 // MiningAddressName is the name of the mining address argument passed to BtcdContainer
 const MiningAddressName = "MINING_ADDRESS"
 
