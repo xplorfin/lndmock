@@ -7,7 +7,7 @@
 
 # What is this?
 
-This is a helper library by [entropy](http://entropy.rocks/) that hopes to imitate some of the functionality of [polar](https://github.com/jamaljsr/polar) for continuous integration. Right now this supports creating btcd and lnd nodes and funding them. Channel support is planned soon. You can check out an example in `lnd_test`. This also supports mocking bolt11 invoices
+This is a helper library by [entropy](http://entropy.rocks/) that hopes to imitate some of the functionality of [polar](https://github.com/jamaljsr/polar) for continuous integration. Right now this supports creating btcd and lnd nodes and funding them. You can check out an example in `lnd_test`. This also supports mocking bolt11 invoices
 
 ## Note:
 
@@ -18,3 +18,4 @@ This library was open sourced as a dependency for another project. While this is
 This command will remove *all* containers on your computer (including containers not created by lndmock): 
 
 `docker stop $(docker ps -a -q) || true && docker rm -v $(docker ps -a -q) || true && docker network rm lightning-network`
+<!-- TODO make this only remove docker-utils methods -->
