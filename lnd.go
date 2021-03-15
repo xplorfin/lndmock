@@ -59,23 +59,8 @@ type LndContainer struct {
 	id string
 	// the lightning mocker object
 	c *LightningMocker
-	// hostname of lnd container
-	hostname string
 	// address of lnd wallet
 	address string
-}
-
-// Hostname gets the hostnamme of a container
-func (l *LndContainer) Hostname() (hostname string, err error) {
-	if l.hostname == "" {
-		// get alices hostname
-		hostnameResult, err := l.c.Exec(l.id, HostnameCmd)
-		if err != nil {
-			return "", err
-		}
-		l.hostname = hostnameResult.StdOut
-	}
-	return l.hostname, err
 }
 
 // Address gets the address of the user
