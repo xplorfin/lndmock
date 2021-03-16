@@ -14,7 +14,7 @@ require (
 	github.com/xplorfin/docker-utils v0.12.0
 	github.com/xplorfin/netutils v0.28.0
 	google.golang.org/grpc v1.36.0
-	gopkg.in/macaroon.v2 v2.0.0
+	gopkg.in/macaroon.v2 v2.1.0
 )
 
 replace (
