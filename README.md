@@ -15,7 +15,12 @@ This library was open sourced as a dependency for another project. While this is
 
 ## Helpful tips:
 
-This command will remove *all* containers on your computer (including containers not created by lndmock): 
+This command will remove lndmock containers:
 
-`docker stop $(docker ps -a -q) || true && docker rm -v $(docker ps -a -q) || true && docker network rm lightning-network`
-<!-- TODO make this only remove docker-utils methods -->
+<!-- TODO: move this into Makefile -->
+`docker stop $(docker ps -a -q --filter label="created-by=docker-utils") || true && docker rm -v $(docker ps -a -q --filter label="created-by=docker-utils") || true && docker network rm lightning-network`
+<!-- see:  https://docs.docker.com/engine/reference/commandline/ps/ -->
+
+# Docker Images
+
+Docker images are currently built in [this](https://github.com/xplorfin/lnd-docker-images) repository. Eventually, we'd like to support bitcoind, eclair, c-lightning, etc and automate retroactive/proactive builds (e.g. a consistent lnd master image). Polar has some docs [here](https://github.com/jamaljsr/polar/blob/master/docs/custom-nodes.md) and we're probably best off following their lead
