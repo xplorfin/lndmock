@@ -1,14 +1,20 @@
 package mock
 
 import (
+	"fmt"
+	"strconv"
+
+	"github.com/docker/go-connections/nat"
 	"github.com/hashicorp/go-multierror"
 	"github.com/xplorfin/docker-utils"
+	"github.com/xplorfin/netutils"
 )
 
 // LightningMocker defines the lnd mocker object
 type LightningMocker struct {
 	docker.Client
 	networkID string
+	portStack netutils.FreePortStack
 }
 
 // NewLightningMocker creates a new lightning mock object with a given
@@ -17,6 +23,7 @@ func NewLightningMocker() LightningMocker {
 	return LightningMocker{
 		Client:    docker.NewDockerClient(),
 		networkID: "",
+		portStack: netutils.NewFreeportStack(),
 	}
 }
 
@@ -56,4 +63,16 @@ func (c LightningMocker) CreateVolumes() error {
 // Teardown removes all containers created in the session
 func (c LightningMocker) Teardown() error {
 	return c.TeardownSession()
+}
+
+// portsToMap takes an arbitrary list of ports and converts them to a port map
+// with the local machine (using free, random ports)
+func (c *LightningMocker) portsToMap(ports []int) (pm nat.PortMap) {
+	pm = make(nat.PortMap)
+	for _, port := range ports {
+		pm[nat.Port(fmt.Sprintf("%d/tcp", port))] = []nat.PortBinding{
+			{HostIP: "0.0.0.0", HostPort: strconv.Itoa(c.portStack.GetPort())},
+		}
+	}
+	return pm
 }

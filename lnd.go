@@ -7,12 +7,14 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/go-connections/nat"
 )
 
 // CreateLndContainer create's an lnd container with a given name
 // and no channels
 func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err error) {
 	ctn.c = &c
+	ctn.PortMap = c.portsToMap([]int{10000, 8080, 9735})
 	created, err := c.CreateContainer(&container.Config{
 		Image:      "ghcr.io/xplorfin/lnd:latest",
 		Env:        EnvArgs(),
@@ -20,7 +22,8 @@ func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err 
 		Entrypoint: []string{"./start-lnd.sh"},
 		Labels:     c.GetSessionLabels(),
 	}, &container.HostConfig{
-		NetworkMode: NetworkName,
+		PortBindings: ctn.PortMap,
+		NetworkMode:  NetworkName,
 		Mounts: []mount.Mount{
 			{
 				Source: "shared",
@@ -59,6 +62,8 @@ type LndContainer struct {
 	c *LightningMocker
 	// address of lnd wallet
 	address string
+	// PortMap is the mapping of ports to the host binding
+	PortMap nat.PortMap
 }
 
 // Address gets the address of the user

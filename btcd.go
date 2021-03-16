@@ -7,11 +7,13 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/go-connections/nat"
 )
 
 // CreateBtcdContainer creates a btccontainer with a mining address address
 func (c LightningMocker) createBtcdContainerWithAddress(address string) (ctn BtcdContainer, err error) {
 	ctn.c = &c
+	ctn.PortMap = c.portsToMap([]int{8334, 18333, 18334, 18555, 18556, 28901, 28902})
 	newEnvArgs := append(EnvArgs(), fmt.Sprintf("%s=%s", MiningAddressName, address))
 	created, err := c.CreateContainer(&container.Config{
 		Image:      "ghcr.io/xplorfin/btcd:latest",
@@ -21,6 +23,8 @@ func (c LightningMocker) createBtcdContainerWithAddress(address string) (ctn Btc
 		Labels:     c.GetSessionLabels(),
 	}, &container.HostConfig{
 		NetworkMode: NetworkName,
+		// expose all btcd ports (these will vary across all boot sand for debugging)
+		PortBindings: ctn.PortMap,
 		Mounts: []mount.Mount{
 			{
 				Source: "shared",
@@ -64,6 +68,8 @@ type BtcdContainer struct {
 	id string
 	// c reference to the lightning mocker object
 	c *LightningMocker
+	// PortMap contains a list of ports on the host to the internal container port
+	PortMap nat.PortMap
 }
 
 // MineToAddress mines a given number of block rewards to an address

@@ -1,6 +1,8 @@
 package mock
 
-import "github.com/docker/docker/api/types/container"
+import (
+	"github.com/docker/docker/api/types/container"
+)
 
 // NetworkName is the name of the network we use in docker
 const NetworkName container.NetworkMode = "lightning-network"
@@ -26,10 +28,4 @@ func EnvArgs() []string {
 // this is a function to make it immutable
 func Volumes() []string {
 	return []string{"shared", "bitcoin", "lnd"}
-}
-
-// HostnameCmd defines the command to fetch the hostname of a given docker container
-// this is a function to make it immutable
-func HostnameCmd() []string {
-	return []string{"hostname", "-i"}
 }
