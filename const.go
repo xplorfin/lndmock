@@ -12,15 +12,24 @@ const MiningAddressName = "MINING_ADDRESS"
 const NetworkCmd = "--network=simnet"
 
 // EnvArgs defines a list of arguments that must be used with the rpc server
-var EnvArgs = []string{
-	"RPCUSER",
-	"RPCPASS",
-	"NETWORK=simnet",
-	"DEBUG",
+// this is a function to make it immutable
+func EnvArgs() []string {
+	return []string{
+		"RPCUSER",
+		"RPCPASS",
+		"NETWORK=simnet",
+		"DEBUG",
+	}
 }
 
 // Volumes defines mounted volumes
-var Volumes = []string{"shared", "bitcoin", "lnd"}
+// this is a function to make it immutable
+func Volumes() []string {
+	return []string{"shared", "bitcoin", "lnd"}
+}
 
 // HostnameCmd defines the command to fetch the hostname of a given docker container
-var HostnameCmd = []string{"hostname", "-i"}
+// this is a function to make it immutable
+func HostnameCmd() []string {
+	return []string{"hostname", "-i"}
+}

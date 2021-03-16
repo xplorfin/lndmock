@@ -15,7 +15,7 @@ func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err 
 	ctn.c = &c
 	created, err := c.CreateContainer(&container.Config{
 		Image:      "ghcr.io/xplorfin/lnd:latest",
-		Env:        EnvArgs,
+		Env:        EnvArgs(),
 		Tty:        false,
 		Entrypoint: []string{"./start-lnd.sh"},
 		Labels:     c.GetSessionLabels(),

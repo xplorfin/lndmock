@@ -14,7 +14,7 @@ import (
 // should be set using BtcdContainer.MineToAddress.
 func (c LightningMocker) CreateBtcdContainer() (ctn BtcdContainer, err error) {
 	ctn.c = &c
-	newEnvArgs := append(EnvArgs, MiningAddressName)
+	newEnvArgs := append(EnvArgs(), MiningAddressName)
 	created, err := c.CreateContainer(&container.Config{
 		Image:      "ghcr.io/xplorfin/btcd:latest",
 		Env:        newEnvArgs,
@@ -86,7 +86,7 @@ func (b *BtcdContainer) recreateWithMiningAddress(containerID string, miningAddr
 		return containerID, err
 	}
 
-	newEnvArgs := append(EnvArgs, fmt.Sprintf("%s=%s", MiningAddressName, miningAddress))
+	newEnvArgs := append(EnvArgs(), fmt.Sprintf("%s=%s", MiningAddressName, miningAddress))
 	created, err := b.c.CreateContainer(&container.Config{
 		Image:      "ghcr.io/xplorfin/btcd:latest",
 		Env:        newEnvArgs,

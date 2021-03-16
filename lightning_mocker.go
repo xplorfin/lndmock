@@ -42,7 +42,7 @@ func (c *LightningMocker) CreateNetworks() (err error) {
 
 // CreateVolumes creates  new volumes if they don't exist
 func (c LightningMocker) CreateVolumes() error {
-	for _, volume := range Volumes {
+	for _, volume := range Volumes() {
 		if !c.VolumeExists(volume) {
 			err := c.CreateVolume(volume)
 			if err != nil {
