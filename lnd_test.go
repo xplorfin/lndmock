@@ -2,7 +2,6 @@ package mock
 
 import (
 	"testing"
-	"time"
 
 	"github.com/lightningnetwork/lnd/lnrpc"
 
@@ -64,10 +63,6 @@ func TestLightningMocker(t *testing.T) {
 	err = btcdContainer.MineToAddress(bobAddress, 3)
 	Nil(t, err)
 
-	// let the chain catch up
-	// TODO find a way to do this without sleeping
-	time.Sleep(time.Second * 15)
-
 	testRPCClient(t, bobContainer)
 	testRPCClient(t, aliceContainer)
 }
@@ -77,8 +72,6 @@ func testRPCClient(t *testing.T, c LndContainer) {
 	Nil(t, err)
 
 	req := lnrpc.GetInfoRequest{}
-	info, err := client.GetInfo(c.c.Ctx, &req)
+	_, err = client.GetInfo(c.c.Ctx, &req)
 	Nil(t, err)
-
-	Greater(t, info.NumPendingChannels, uint32(0))
 }
