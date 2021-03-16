@@ -10,8 +10,11 @@ const NetworkName container.NetworkMode = "lightning-network"
 // MiningAddressName is the name of the mining address argument passed to BtcdContainer
 const MiningAddressName = "MINING_ADDRESS"
 
-// NetworkCmd defines a constant for the network all command use
-const NetworkCmd = "--network=simnet"
+// LnCLIPrefix defines a constant for the network all command use
+// this is a function to make it immutable
+func LnCLIPrefix() []string {
+	return []string{"lncli", "--rpcserver=localhost:10009", "--network=simnet"}
+}
 
 // EnvArgs defines a list of arguments that must be used with the rpc server
 // this is a function to make it immutable

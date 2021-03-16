@@ -67,8 +67,8 @@ func (c LightningMocker) Teardown() error {
 
 // portsToMap takes an arbitrary list of ports and converts them to a port map
 // with the local machine (using free, random ports)
-func (c *LightningMocker) portsToMap(ports []int) (pm nat.PortMap) {
-	pm = make(nat.PortMap)
+func (c *LightningMocker) portsToMap(ports []int) (pm PortMap) {
+	pm = make(PortMap)
 	for _, port := range ports {
 		pm[nat.Port(fmt.Sprintf("%d/tcp", port))] = []nat.PortBinding{
 			{HostIP: "0.0.0.0", HostPort: strconv.Itoa(c.portStack.GetPort())},
