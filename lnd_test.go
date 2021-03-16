@@ -2,6 +2,7 @@ package mock
 
 import (
 	"testing"
+	"time"
 
 	"github.com/lightningnetwork/lnd/lnrpc"
 
@@ -62,6 +63,10 @@ func TestLightningMocker(t *testing.T) {
 	// broadcast channel opening transactions
 	err = btcdContainer.MineToAddress(bobAddress, 3)
 	Nil(t, err)
+
+	// let the chain catch up
+	// TODO find a way to do this without sleeping
+	time.Sleep(time.Second * 30)
 
 	testRPCClient(t, bobContainer)
 	testRPCClient(t, aliceContainer)
