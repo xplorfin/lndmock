@@ -75,5 +75,5 @@ func testRPCClient(t *testing.T, c LndContainer) {
 	info, err := client.GetInfo(c.c.Ctx, &req)
 	Nil(t, err)
 
-	Greater(t, 0, info.NumActiveChannels)
+	Greater(t, uint32(0), info.NumPendingChannels)
 }
