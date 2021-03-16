@@ -20,7 +20,6 @@ func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err 
 		Entrypoint: []string{"./start-lnd.sh"},
 		Labels:     c.GetSessionLabels(),
 	}, &container.HostConfig{
-		//Links: []string{"btcd:blockchain"},
 		NetworkMode: NetworkName,
 		Mounts: []mount.Mount{
 			{
@@ -34,7 +33,6 @@ func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err 
 				Type:   mount.TypeVolume,
 			},
 		},
-		// TODO name fix
 	}, nil, nil, name)
 
 	if err != nil {
