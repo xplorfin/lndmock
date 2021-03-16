@@ -66,7 +66,7 @@ func TestLightningMocker(t *testing.T) {
 
 	// let the chain catch up
 	// TODO find a way to do this without sleeping
-	time.Sleep(time.Second * 30)
+	time.Sleep(time.Second * 15)
 
 	testRPCClient(t, bobContainer)
 	testRPCClient(t, aliceContainer)
