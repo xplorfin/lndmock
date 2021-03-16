@@ -15,8 +15,9 @@ This library was open sourced as a dependency for another project. While this is
 
 ## Helpful tips:
 
-This command will remove lndmock containers: 
+This command will remove lndmock containers:
 
+<!-- TODO: move this into Makefile -->
 `docker stop $(docker ps -a -q --filter label="created-by=docker-utils") || true && docker rm -v $(docker ps -a -q --filter label="created-by=docker-utils") || true && docker network rm lightning-network`
 <!-- see:  https://docs.docker.com/engine/reference/commandline/ps/ -->
 

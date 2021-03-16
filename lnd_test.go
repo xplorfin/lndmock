@@ -3,6 +3,8 @@ package mock
 import (
 	"testing"
 
+	"github.com/lightningnetwork/lnd/lnrpc"
+
 	. "github.com/stretchr/testify/assert"
 )
 
@@ -13,79 +15,65 @@ func TestLightningMocker(t *testing.T) {
 		Nil(t, mocker.Teardown())
 	}()
 	err := mocker.Initialize()
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	// start btcd as a prereq to lnd
 	btcdContainer, err := mocker.CreateBtcdContainer()
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	// start alice's lnd instance
 	aliceContainer, err := mocker.CreateLndContainer("alice")
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	// get alices hostname
 	aliceAddress, err := aliceContainer.Address()
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	alicePubKey, err := aliceContainer.GetPubKey()
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	err = btcdContainer.MineToAddress(aliceAddress, 500)
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	// start bob's lnd instance
 	bobContainer, err := mocker.CreateLndContainer("bob")
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	// give bob btc
 	bobAddress, err := bobContainer.Address()
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	err = btcdContainer.MineToAddress(bobAddress, 500)
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
-	// remove until we can fix container link
-	_ = alicePubKey
 	// open alice->bob channel
 	// error is currently cannot link toa  non-running container /btcd ad /bob/blockchain
 	err = bobContainer.OpenChannel(alicePubKey, "alice", 100000)
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	// get bob pub key
 	bobPubKey, err := bobContainer.GetPubKey()
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	// open bob->alice container
 	err = aliceContainer.OpenChannel(bobPubKey, "bob", 100000)
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
 
 	// broadcast channel opening transactions
 	err = btcdContainer.MineToAddress(bobAddress, 3)
-	if err != nil {
-		t.Error(err)
-	}
+	Nil(t, err)
+
+	testRPCClient(t, bobContainer)
+	testRPCClient(t, aliceContainer)
+}
+
+func testRPCClient(t *testing.T, c LndContainer) {
+	client, err := c.RPCClient()
+	Nil(t, err)
+
+	req := lnrpc.GetInfoRequest{}
+	info, err := client.GetInfo(c.c.Ctx, &req)
+	Nil(t, err)
+
+	Greater(t, 0, info.NumActiveChannels)
 }
