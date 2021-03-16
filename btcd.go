@@ -9,12 +9,10 @@ import (
 	"github.com/docker/docker/api/types/mount"
 )
 
-// CreateBtcdContainer creates a BtcdContainer and starts it so it can
-// respond to rpc requests. Mining must be done manually and a mining address
-// should be set using BtcdContainer.MineToAddress.
-func (c LightningMocker) CreateBtcdContainer() (ctn BtcdContainer, err error) {
+// CreateBtcdContainer creates a btccontainer with a mining address address
+func (c LightningMocker) createBtcdContainerWithAddress(address string) (ctn BtcdContainer, err error) {
 	ctn.c = &c
-	newEnvArgs := append(EnvArgs(), MiningAddressName)
+	newEnvArgs := append(EnvArgs(), fmt.Sprintf("%s=%s", MiningAddressName, address))
 	created, err := c.CreateContainer(&container.Config{
 		Image:      "ghcr.io/xplorfin/btcd:latest",
 		Env:        newEnvArgs,
@@ -52,6 +50,13 @@ func (c LightningMocker) CreateBtcdContainer() (ctn BtcdContainer, err error) {
 	return ctn, nil
 }
 
+// CreateBtcdContainer creates a BtcdContainer and starts it so it can
+// respond to rpc requests. Mining must be done manually and a mining address
+// should be set using BtcdContainer.MineToAddress.
+func (c LightningMocker) CreateBtcdContainer() (ctn BtcdContainer, err error) {
+	return c.createBtcdContainerWithAddress("")
+}
+
 // BtcdContainer object contains methods that allow us to interact with a created
 // btcd container
 type BtcdContainer struct {
@@ -86,40 +91,10 @@ func (b *BtcdContainer) recreateWithMiningAddress(containerID string, miningAddr
 		return containerID, err
 	}
 
-	newEnvArgs := append(EnvArgs(), fmt.Sprintf("%s=%s", MiningAddressName, miningAddress))
-	created, err := b.c.CreateContainer(&container.Config{
-		Image:      "ghcr.io/xplorfin/btcd:latest",
-		Env:        newEnvArgs,
-		Tty:        false,
-		Entrypoint: []string{"./start-btcd.sh"},
-		Labels:     b.c.GetSessionLabels(),
-	}, &container.HostConfig{
-		NetworkMode: NetworkName,
-		Mounts: []mount.Mount{
-			{
-				Source: "shared",
-				Target: "/rpc",
-				Type:   mount.TypeVolume,
-			},
-			{
-				Source: "bitcoin",
-				Target: "/data",
-				Type:   mount.TypeVolume,
-			},
-		},
-	}, nil, nil, "blockchain")
-
+	ctn, err := b.c.createBtcdContainerWithAddress(miningAddress)
 	if err != nil {
-		return id, err
-	}
-	b.id = created.ID
-
-	err = b.c.ContainerStart(b.c.Ctx, created.ID, types.ContainerStartOptions{})
-	if err != nil {
-		return id, err
+		return containerID, err
 	}
 
-	b.c.PrintContainerLogs(created.ID)
-
-	return created.ID, nil
+	return ctn.id, nil
 }
