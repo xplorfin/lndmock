@@ -140,22 +140,25 @@ func (l *LndContainer) OpenChannel(pubKey, host string, amount int) (err error) 
 }
 
 // GetTLSCert gets the tls cert for LndContainer
-func (l *LndContainer) GetTLSCert() (cert *tls.Config, err error) {
-	rawCert, err := l.c.Exec(l.id, []string{"cat", "/root/.lnd/tls.cert"})
+func (l *LndContainer) GetTLSCert() (cert *tls.Config, rawCert string, err error) {
+	rawResult, err := l.c.Exec(l.id, []string{"cat", "/root/.lnd/tls.cert"})
 	if err != nil {
-		return cert, err
+		return cert, rawCert, err
 	}
 
+	rawCert = rawResult.StdOut
+
 	cp := x509.NewCertPool()
-	if !cp.AppendCertsFromPEM([]byte(rawCert.StdOut)) {
-		return cert, err
+	if !cp.AppendCertsFromPEM([]byte(rawCert)) {
+		return cert, rawCert, err
 	}
 
 	cert = &tls.Config{
 		InsecureSkipVerify: true,
 		RootCAs:            cp,
 	}
-	return cert, err
+
+	return cert, rawCert, err
 }
 
 // GetAdminMacaroon fetches the admin macaroon from LndContainer
@@ -181,7 +184,7 @@ func (l *LndContainer) GetAdminMacaroon() (mac *macaroon.Macaroon, err error) {
 
 // GrpcConnection generates a grpc connection to a
 func (l *LndContainer) GrpcConnection() (conn *grpc.ClientConn, err error) {
-	cert, err := l.GetTLSCert()
+	cert, _, err := l.GetTLSCert()
 	if err != nil {
 		return nil, err
 	}
