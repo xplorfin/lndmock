@@ -11,7 +11,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/lightningnetwork/lnd v0.11.1-beta.rc5
 	github.com/stretchr/testify v1.7.0
-	github.com/xplorfin/docker-utils v0.12.0
+	github.com/xplorfin/docker-utils v0.13.0
 	github.com/xplorfin/netutils v0.29.0
 	google.golang.org/grpc v1.36.0
 	gopkg.in/macaroon.v2 v2.1.0
