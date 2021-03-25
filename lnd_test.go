@@ -47,7 +47,6 @@ func TestLightningMocker(t *testing.T) {
 	Nil(t, err)
 
 	// open alice->bob channel
-	// error is currently cannot link toa  non-running container /btcd ad /bob/blockchain
 	err = bobContainer.OpenChannel(alicePubKey, "alice", 100000)
 	Nil(t, err)
 
@@ -72,6 +71,7 @@ func testRPCClient(t *testing.T, c LndContainer) {
 	Nil(t, err)
 
 	req := lnrpc.GetInfoRequest{}
-	_, err = client.GetInfo(c.c.Ctx, &req)
+	res, err := client.GetInfo(c.c.Ctx, &req)
+	_ = res
 	Nil(t, err)
 }

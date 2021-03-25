@@ -125,11 +125,35 @@ func (l *LndContainer) Connect(pubKey, host string) (err error) {
 	return err
 }
 
+// WaitForSync waits for a the chain to be synced
+func (l *LndContainer) WaitForSync() (err error) {
+	client, err := l.RPCClient()
+	if err != nil {
+		return err
+	}
+	for {
+		// this never finishes
+		res, err := client.GetInfo(l.c.Ctx, &lnrpc.GetInfoRequest{})
+		if err != nil {
+			return err
+		}
+		if res.SyncedToChain {
+			// never gets called, but res.SyncedToGraph is true
+			break
+		}
+	}
+	return err
+}
+
 // OpenChannel connects to the peer and broadcasts a channel
 // opening transaction to the mempool.
 // Note: blocks must be mined for channel to be established
 func (l *LndContainer) OpenChannel(pubKey, host string, amount int) (err error) {
 	err = l.Connect(pubKey, host)
+	if err != nil {
+		return err
+	}
+	err = l.WaitForSync()
 	if err != nil {
 		return err
 	}
