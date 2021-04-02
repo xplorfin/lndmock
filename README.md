@@ -18,7 +18,7 @@ This library was open sourced as a dependency for another project. While this is
 This command will remove lndmock containers:
 
 <!-- TODO: move this into Makefile -->
-`docker stop $(docker ps -a -q --filter label="created-by=docker-utils") || true && docker rm -v $(docker ps -a -q --filter label="created-by=docker-utils") || true && docker network rm lightning-network && docker volume rm $(docker ps -a -q --filter label="created-by=docker-utils") `
+`docker stop $(docker ps -a -q --filter label="created-by=docker-utils") || true && docker rm -v $(docker ps -a -q --filter label="created-by=docker-utils") || true && docker network rm lightning-network || true && docker volume rm $( docker volume ls -q --filter label="created-by=docker-utils") || true`
 <!-- see:  https://docs.docker.com/engine/reference/commandline/ps/ -->
 
 # Docker Images

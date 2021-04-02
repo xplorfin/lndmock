@@ -37,11 +37,17 @@ func (c LightningMocker) CreateLndContainer(name string) (ctn LndContainer, err 
 				Source: "shared",
 				Target: "/rpc",
 				Type:   mount.TypeVolume,
+				VolumeOptions: &mount.VolumeOptions{
+					Labels: c.GetSessionLabels(),
+				},
 			},
 			{
 				Source: fmt.Sprintf("%s-lnd", name),
 				Target: "/root/.lnd",
 				Type:   mount.TypeVolume,
+				VolumeOptions: &mount.VolumeOptions{
+					Labels: c.GetSessionLabels(),
+				},
 			},
 		},
 	}, nil, nil, name)
