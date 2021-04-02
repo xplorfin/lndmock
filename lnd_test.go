@@ -1,9 +1,8 @@
 package mock
 
 import (
-	"testing"
-
 	"github.com/lightningnetwork/lnd/lnrpc"
+	"testing"
 
 	. "github.com/stretchr/testify/assert"
 )
@@ -46,6 +45,12 @@ func TestLightningMocker(t *testing.T) {
 	err = btcdContainer.MineToAddress(bobAddress, 500)
 	Nil(t, err)
 
+	err = aliceContainer.WaitForSync(true, false)
+	Nil(t, err)
+
+	err = bobContainer.WaitForSync(true, false)
+	Nil(t, err)
+
 	// open alice->bob channel
 	err = bobContainer.OpenChannel(alicePubKey, "alice", 100000)
 	Nil(t, err)
@@ -54,12 +59,32 @@ func TestLightningMocker(t *testing.T) {
 	bobPubKey, err := bobContainer.GetPubKey()
 	Nil(t, err)
 
+	err = btcdContainer.Mine(5)
+	Nil(t, err)
+
+	err = bobContainer.WaitForCondition(func(res *lnrpc.GetInfoResponse) bool {
+		return res.NumActiveChannels == 1
+	})
+
+	Nil(t, err)
+
 	// open bob->alice container
 	err = aliceContainer.OpenChannel(bobPubKey, "bob", 100000)
 	Nil(t, err)
 
-	// broadcast channel opening transactions
-	err = btcdContainer.MineToAddress(bobAddress, 3)
+	err = btcdContainer.Mine(5)
+	Nil(t, err)
+
+	err = aliceContainer.WaitForCondition(func(res *lnrpc.GetInfoResponse) bool {
+		return res.NumActiveChannels == 2
+	})
+
+	Nil(t, err)
+
+	err = aliceContainer.WaitForSync(true, true)
+	Nil(t, err)
+
+	err = bobContainer.WaitForSync(true, true)
 	Nil(t, err)
 
 	testRPCClient(t, bobContainer)
