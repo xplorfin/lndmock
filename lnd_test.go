@@ -100,6 +100,6 @@ func testRPCClient(t *testing.T, c LndContainer) {
 	res, err := client.GetInfo(c.c.Ctx, &req)
 	Nil(t, err)
 
-	Equal(t, res.NumActiveChannels, 2)
+	Equal(t, res.NumActiveChannels, uint32(2))
 	Nil(t, err)
 }
