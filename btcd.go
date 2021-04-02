@@ -71,6 +71,12 @@ type BtcdContainer struct {
 	PortMap PortMap
 }
 
+// Mine a given number of blocks
+func (b *BtcdContainer) Mine(blocks int) (err error) {
+	_, err = b.c.Exec(b.id, []string{"/start-btcctl.sh", "generate", strconv.Itoa(blocks)})
+	return err
+}
+
 // MineToAddress mines a given number of block rewards to an address
 func (b *BtcdContainer) MineToAddress(address string, blocks int) (err error) {
 	b.id, err = b.recreateWithMiningAddress(b.id, address)
@@ -78,9 +84,7 @@ func (b *BtcdContainer) MineToAddress(address string, blocks int) (err error) {
 		return err
 	}
 	// generate n-blocks
-	_, err = b.c.Exec(b.id, []string{"/start-btcctl.sh", "generate", strconv.Itoa(blocks)})
-
-	return err
+	return b.Mine(blocks)
 }
 
 // recreateWithMiningAddress recreates the btcd  container with a mining address

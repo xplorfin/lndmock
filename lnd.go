@@ -131,8 +131,9 @@ func (l *LndContainer) Connect(pubKey, host string) (err error) {
 	return err
 }
 
-// WaitForSync waits for a the chain to be synced
-func (l *LndContainer) WaitForSync() (err error) {
+// WaitForCondition waits for a custom condition from info. Useful for verifying chain states
+// Use with caution. Loop will not terminate until checker is true
+func (l *LndContainer) WaitForCondition(checker func(res *lnrpc.GetInfoResponse) bool) (err error) {
 	client, err := l.RPCClient()
 	if err != nil {
 		return err
@@ -143,12 +144,18 @@ func (l *LndContainer) WaitForSync() (err error) {
 		if err != nil {
 			return err
 		}
-		if res.SyncedToChain {
-			// never gets called, but res.SyncedToGraph is true
+		if checker(res) {
 			break
 		}
 	}
 	return err
+}
+
+// WaitForSync waits for a the chain to be synced
+func (l *LndContainer) WaitForSync(chain, graph bool) (err error) {
+	return l.WaitForCondition(func(res *lnrpc.GetInfoResponse) bool {
+		return (!chain || res.SyncedToChain) && (!graph || res.SyncedToGraph)
+	})
 }
 
 // OpenChannel connects to the peer and broadcasts a channel
@@ -159,7 +166,7 @@ func (l *LndContainer) OpenChannel(pubKey, host string, amount int) (err error) 
 	if err != nil {
 		return err
 	}
-	err = l.WaitForSync()
+	err = l.WaitForSync(true, false)
 	if err != nil {
 		return err
 	}
