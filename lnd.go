@@ -154,7 +154,7 @@ func (l *LndContainer) WaitForCondition(checker func(res *lnrpc.GetInfoResponse)
 // WaitForSync waits for a the chain to be synced
 func (l *LndContainer) WaitForSync(chain, graph bool) (err error) {
 	return l.WaitForCondition(func(res *lnrpc.GetInfoResponse) bool {
-		return (chain == false || res.SyncedToChain) && (graph == false || res.SyncedToGraph)
+		return (!chain || res.SyncedToChain) && (!graph || res.SyncedToGraph)
 	})
 }
 

@@ -1,8 +1,9 @@
 package mock
 
 import (
-	"github.com/lightningnetwork/lnd/lnrpc"
 	"testing"
+
+	"github.com/lightningnetwork/lnd/lnrpc"
 
 	. "github.com/stretchr/testify/assert"
 )
