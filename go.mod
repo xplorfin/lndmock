@@ -9,7 +9,7 @@ require (
 	github.com/docker/docker v20.10.6+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/lightningnetwork/lnd v0.11.1-beta.rc5
+	github.com/lightningnetwork/lnd v0.11.1-beta-rc5-branch
 	github.com/stretchr/testify v1.7.0
 	github.com/xplorfin/docker-utils v0.13.0
 	github.com/xplorfin/netutils v0.42.0
