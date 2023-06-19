@@ -12,7 +12,7 @@ require (
 	github.com/lightningnetwork/lnd v0.11.1-beta.rc5
 	github.com/stretchr/testify v1.7.0
 	github.com/xplorfin/docker-utils v0.13.0
-	github.com/xplorfin/netutils v0.42.0
+	github.com/xplorfin/netutils v0.63.0
 	google.golang.org/grpc v1.38.0
 	gopkg.in/macaroon.v2 v2.1.0
 )
