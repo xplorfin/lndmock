@@ -10,7 +10,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/lightningnetwork/lnd v0.11.1-beta.rc5
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.9.0
 	github.com/xplorfin/docker-utils v0.13.0
 	github.com/xplorfin/netutils v0.42.0
 	google.golang.org/grpc v1.38.0
