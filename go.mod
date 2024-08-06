@@ -7,7 +7,7 @@ require (
 	github.com/btcsuite/btcd v0.21.0-beta
 	github.com/buger/jsonparser v1.1.1
 	github.com/docker/docker v20.10.6+incompatible
-	github.com/docker/go-connections v0.4.0
+	github.com/docker/go-connections v0.5.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/lightningnetwork/lnd v0.11.1-beta.rc5
 	github.com/stretchr/testify v1.7.0
